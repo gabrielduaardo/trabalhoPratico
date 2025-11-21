@@ -1,28 +1,3 @@
-#include <iostream>
-#include <string>
-
-class Cliente {
-private:
-    int codigo;
-    std::string nome;
-    std::string endereco;
-    std::string telefone;
-
-public:
-    // Construtor
-    Cliente(int cod, const std::string& n, const std::string& end, const std::string& tel)
-        : codigo(cod), nome(n), endereco(end), telefone(tel) {}
-
-    // Métodos Get (Acessores)
-    int getCodigo() const { return codigo; }
-    std::string getNome() const { return nome; }
-    std::string getEndereco() const { return endereco; }
-    std::string getTelefone() const { return telefone; }
-
-    // (Poderia incluir métodos Set para modificação de dados, se necessário)
-};
-
-
 class Funcionario {
 private:
     int codigo;
@@ -91,8 +66,3 @@ public:
     int getCodigoDoCliente() const { return codigoDoCliente; }
     int getNumeroDoQuarto() const { return numeroDoQuarto; }
 };
-
-
-int main (void) {
-
-}
