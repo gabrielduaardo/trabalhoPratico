@@ -4,9 +4,17 @@
 // Inclui as DECLARAÇÕES das classes e funções
 #include "cliente/cliente.cpp"
 
+#include <chrono> // Para usar std::chrono::seconds
+#include <thread> // Para usar std::this_thread::sleep_for
+
+// void delay(int segundos) {
+//     // Suspende a execução da thread atual (o seu programa)
+//     // pelo número de segundos especificado.
+//     std::this_thread::sleep_for(std::chrono::seconds(segundos));
+// }
 void limparTela()
 {
-    std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
+   
 #ifdef _WIN32
     system("cls");
 #else
@@ -46,23 +54,32 @@ int main()
         std::cout << "3. Sair" << std::endl;
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Escolha uma opcao: ";
-        std::cin >> i;
 
+        if (!(std::cin >> i)) {
+            // 1. Limpa o estado de erro do cin, permitindo novas operações de I/O.
+            std::cin.clear();     
+            // 2. Limpa o buffer, jogando fora a letra que causou a falha.
+            std::cin.ignore(10000, '\n'); 
+            i = 0; 
+        }
         switch (i)
         {
         case 1: // Chama a função que coleta dados e cadastra
             cliente();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+             std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
             std::cin.get(); // Espera o usuário apertar Enter para continuar
 
             break;
         case 2: // Lista os clientes cadastrados
             listarClientes();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+             std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
             std::cin.get(); // Espera o usuário apertar Enter para continuar
             break;
         case 3: // Saindo
             std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
+            //  delay(2);
             break;
         default:
             std::cout << "\nOpcao invalida. Tente novamente." << std::endl;
