@@ -3,45 +3,73 @@
 
 // Inclui as DECLARAÇÕES das classes e funções
 #include "cliente/cliente.cpp"
-// #include "cliente.h"
 
-int main() {
-    int i = 0;
-    std::string nome;
-    std::string endereco;
-    std::string telefone;
+void limparTela()
+{
+    std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+void cliente()
+{
+    std::string nome, endereco, telefone;
 
-    std::cout << " SEJA BEM VINDO! " << std::endl;
-    std::cout << " ESCOLHA A OPCAO DESEJADA! " << std::endl;
+    std::cout << "\n--- Cadastro de Cliente ---" << std::endl;
 
-    while (i < 1 || i > 2) {
-        std::cout << "Escolha uma das opcoes abaixo" << std::endl;
+    std::cout << " Informe o seu nome " << std::endl;
+    std::cin >> nome;
 
-        std::cout << " 1 - Realizar o seu cadastro " << std::endl;
-        std::cout << " 2 - Para sair " << std::endl;
+    std::cout << " Informe o seu endereco " << std::endl;
+    std::cin >> endereco;
+
+    std::cout << " Informe o seu numero de telefone " << std::endl;
+    std::cin >> telefone;
+    // Cadastro dos clientes
+    cadastrarCliente(nome, endereco, telefone);
+}
+
+int main()
+{
+    int i;
+
+    do
+    {
+        // Apresentação do Menu
+        std::cout << "\n===============================" << std::endl;
+        std::cout << "         MENU PRINCIPAL        " << std::endl;
+        std::cout << "===============================" << std::endl;
+        std::cout << "1. Cadastrar Novo Cliente" << std::endl;
+        std::cout << "2. Listar Clientes" << std::endl;
+        std::cout << "3. Sair" << std::endl;
+        std::cout << "-------------------------------" << std::endl;
+        std::cout << "Escolha uma opcao: ";
         std::cin >> i;
-    }
 
-    if (i == 1) {
-        
-        std::cout << " Informe o seu nome " << std::endl;
-        std::cin >> nome;
+        switch (i)
+        {
+        case 1: // Chama a função que coleta dados e cadastra
+            cliente();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.get(); // Espera o usuário apertar Enter para continuar
 
-        std::cout << " Informe o seu endereco " << std::endl;
-        std::cin >> endereco;
+            break;
+        case 2: // Lista os clientes cadastrados
+            listarClientes();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.get(); // Espera o usuário apertar Enter para continuar
+            break;
+        case 3: // Saindo
+            std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
+            break;
+        default:
+            std::cout << "\nOpcao invalida. Tente novamente." << std::endl;
+            break;
+        }
+        limparTela();
+    } while (i != 3);
 
-        std::cout << " Informe o seu numero de telefone " << std::endl;
-        std::cin >> telefone;
-        // Cadastro dos clientes
-        cadastrarCliente("Gabriel Silva", "Rua A, 10", "3199991111");
-        cadastrarCliente("Mariana Santos", "Av. B, 200", "3198882222");
-        cadastrarCliente("Pedro Oliveira", "Travessa C, 5", "3197773333");
-        cadastrarCliente(nome, endereco, telefone);
-
-        // Listagem
-        listarClientes();
-    } else if (i == 2) {
-        std::cout << " Saindo... " << std::endl;
-    }
     return 0;
 }
