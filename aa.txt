@@ -1,28 +1,3 @@
-
-
-
-class Quarto {
-private:
-    int numeroDoQuarto;
-    int quantidadeDeHospedes;
-    double valorDaDiaria;
-    std::string status;
-
-public:
-    // Construtor
-    Quarto(int num, int hospedes, double valor, const std::string& stat)
-        : numeroDoQuarto(num), quantidadeDeHospedes(hospedes), valorDaDiaria(valor), status(stat) {}
-
-    // Métodos Get
-    int getNumeroDoQuarto() const { return numeroDoQuarto; }
-    int getQuantidadeDeHospedes() const { return quantidadeDeHospedes; }
-    double getValorDaDiaria() const { return valorDaDiaria; }
-    std::string getStatus() const { return status; }
-
-    // Método para mudar o status
-    void setStatus(const std::string& novoStatus) { status = novoStatus; }
-};
-
 class Estadia {
 private:
     int codigoDaEstadia;

@@ -50,15 +50,14 @@ bool cadastrarFuncionario(const std::string &nome, const std::string &telefone, 
     proximoCodigo++;
 
     std::cout << "Funcionario '" << nome << "' cadastrado com sucesso!" << std::endl;
-    std::cout << "  Codigo atribuido: " << novoFuncionario.getCodigo() << std::endl;
+    std::cout << "Codigo atribuido: " << novoFuncionario.getCodigo() << std::endl;
 
     return true;
 }
 
 void listarFuncionario()
 {
-
-    std::cout << "\n -=-| Lista de Funcionarios Cadastrados ( " << listaDeFuncionario.size() << ") |-=-" << std::endl;
+    std::cout << "\n-=-| Lista de Funcionarios Cadastrados ( " << listaDeFuncionario.size() << " ) |-=-" << std::endl;
 
     if (listaDeFuncionario.empty())
     {

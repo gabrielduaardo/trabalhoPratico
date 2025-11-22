@@ -4,6 +4,7 @@
 // Inclui as DECLARAÇÕES das classes e funções
 #include "cliente/cliente.cpp"
 #include "funcionario/funcionario.cpp"
+#include "quarto/quarto.cpp"
 
 void limparTela()
 {
@@ -24,11 +25,13 @@ int main()
         std::cout << "\n===============================" << std::endl;
         std::cout << "         MENU PRINCIPAL        " << std::endl;
         std::cout << "===============================" << std::endl;
+        std::cout << "0. Sair" << std::endl;
         std::cout << "1. Cadastrar Novo Cliente" << std::endl;
         std::cout << "2. Listar Clientes" << std::endl;
         std::cout << "3. Cadastrar Novo Funcionario" << std::endl;
         std::cout << "4. Listar Funcionario" << std::endl;
-        std::cout << "6. Sair" << std::endl;
+        std::cout << "5. Cadastrar Novo Quarto" << std::endl;
+        std::cout << "6. Listar Quartos" << std::endl;
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Escolha uma opcao: ";
 
@@ -38,10 +41,15 @@ int main()
             std::cin.clear();
             // 2. Limpa o buffer, jogando fora a letra que causou a falha.
             std::cin.ignore(10000, '\n');
-            opcao = 0;
+            opcao = 100;
         }
         switch (opcao)
         {
+        case 0: // Saindo
+            std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
+            //  delay(2);
+            break;
+
         case 1: // Chama a função que coleta dados e cadastra
             cliente();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
@@ -70,16 +78,25 @@ int main()
             std::cin.get();               // Espera o usuário apertar Enter para continuar
             break;
 
-        case 6: // Saindo
-            std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
-            //  delay(2);
+        case 5: // Cadastrar Funcionario
+            quarto();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.ignore(10000, '\n');
+            std::cin.get();
+            break;
+
+        case 6: // Lista os clientes cadastrados
+            listarQuartos();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
+            std::cin.get();               // Espera o usuário apertar Enter para continuar
             break;
 
         default:
             std::cout << "\nOpcao invalida. Tente novamente." << std::endl;
             break;
         }
-    } while (opcao != 6);
+    } while (opcao != 0);
 
     return 0;
 }

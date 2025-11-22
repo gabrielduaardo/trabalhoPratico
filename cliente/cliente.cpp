@@ -7,7 +7,6 @@ push_back é um método de vetores que adiciona um novo elemento ao final do con
 .empty() é uma função membro de contêineres da Standard Template Library (STL), como std::vector, std::string e std::map, que verifica se o contêiner está vazi
 
    -=-=-=-=| FIM |-=-=-=-=*/
-
 #include "cliente.h" // Inclui as declarações que estão em cliente.h
 
 // DEFINIÇÃO da variável global (aloca o espaço na memória)
@@ -23,6 +22,7 @@ Cliente::Cliente(int cod, const std::string& nom, const std::string& end, const 
 void cliente()
 {
     std::string nome, endereco, telefone;
+    int hospedes;
 
     std::cout << "\n-=-| Cadastro de Cliente |-=-" << std::endl;
 
@@ -34,6 +34,7 @@ void cliente()
 
     std::cout << " Informe o NUMERO DE TELEFONE " << std::endl;
     std::cin >> telefone;
+
     // Cadastro dos clientes
     cadastrarCliente(nome, endereco, telefone);
 }
@@ -44,8 +45,10 @@ bool cadastrarCliente(const std::string& nome, const std::string& endereco, cons
     Cliente novoCliente(proximoCodigo, nome, endereco, telefone);
     listaDeClientes.push_back(novoCliente);
     proximoCodigo++;
+
     std::cout << " Cliente '" << nome << "' cadastrado com sucesso!" << std::endl;
-    std::cout << "   Codigo atribuido: " << novoCliente.getCodigo() << std::endl;
+    std::cout << " Codigo atribuido: " << novoCliente.getCodigo() << std::endl;
+
     return true;
 }
 

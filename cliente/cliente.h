@@ -29,6 +29,9 @@ public:
     std::string getNome() const { return nome; }
     std::string getEndereco() const { return endereco; }
     std::string getTelefone() const { return telefone; }
+
+    // void salvar(std::ofstream& ofs) const;
+    // void carregar(std::ifstream& ifs);
 };
 
 // DECLARAÇÃO da variável global: diz ao compilador que ela existe em outro lugar.
