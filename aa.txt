@@ -1,23 +1,4 @@
-class Funcionario {
-private:
-    int codigo;
-    std::string nome;
-    std::string telefone;
-    std::string cargo;
-    double salario;
 
-public:
-    // Construtor
-    Funcionario(int cod, const std::string& n, const std::string& tel, const std::string& c, double sal)
-        : codigo(cod), nome(n), telefone(tel), cargo(c), salario(sal) {}
-
-    // Métodos Get
-    int getCodigo() const { return codigo; }
-    std::string getNome() const { return nome; }
-    std::string getTelefone() const { return telefone; }
-    std::string getCargo() const { return cargo; }
-    double getSalario() const { return salario; }
-};
 
 
 class Quarto {
