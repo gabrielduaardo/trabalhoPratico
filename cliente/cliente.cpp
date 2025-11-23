@@ -26,13 +26,13 @@ void cliente()
 
     std::cout << "\n-=-| Cadastro de Cliente |-=-" << std::endl;
 
-    std::cout << " Informe o NOME " << std::endl;
+    std::cout << "*Informe o nome do cliente: ";
     std::cin >> nome;
 
-    std::cout << " Informe o ENDERECO " << std::endl;
+    std::cout << "*Informe o endereco do cliente: ";
     std::cin >> endereco;
 
-    std::cout << " Informe o NUMERO DE TELEFONE " << std::endl;
+    std::cout << "*Informe o telefone do clinete: ";
     std::cin >> telefone;
 
     // Cadastro dos clientes
@@ -46,8 +46,8 @@ bool cadastrarCliente(const std::string& nome, const std::string& endereco, cons
     listaDeClientes.push_back(novoCliente);
     proximoCodigo++;
 
-    std::cout << " Cliente '" << nome << "' cadastrado com sucesso!" << std::endl;
-    std::cout << " Codigo atribuido: " << novoCliente.getCodigo() << std::endl;
+    std::cout << "\n - Cliente '" << nome << "' cadastrado com sucesso!" << std::endl;
+    std::cout << " - Codigo atribuido: " << novoCliente.getCodigo() << std::endl;
 
     return true;
 }
@@ -56,12 +56,13 @@ bool cadastrarCliente(const std::string& nome, const std::string& endereco, cons
 void listarClientes() {
     std::cout << "\n-=-| Lista de Clientes Cadastrados (" << listaDeClientes.size() << ") |-=-" << std::endl;
     if (listaDeClientes.empty()) {
-        std::cout << "Nenhum cliente cadastrado." << std::endl;
+        std::cout << "*Nenhum cliente cadastrado.*" << std::endl;
         return;
     }
     for (const auto& cliente : listaDeClientes) {
         std::cout << "Codigo: " << cliente.getCodigo()
                   << ", Nome: " << cliente.getNome()
+                  << ", Endereco: " <<cliente.getEndereco()
                   << ", Telefone: " << cliente.getTelefone() << std::endl;
     }
     std::cout << "------------------------------------------" << std::endl;

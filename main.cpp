@@ -5,21 +5,14 @@
 #include "cliente/cliente.cpp"
 #include "funcionario/funcionario.cpp"
 #include "quarto/quarto.cpp"
-
-void limparTela()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
+#include "estadia/estadia.cpp"
+#include "funcoes/limparTela.cpp"
 
 int main()
 {
     int opcao;
     do
-    {
+    {   
         limparTela();
         // Apresentação do Menu
         std::cout << "\n===============================" << std::endl;
@@ -32,6 +25,8 @@ int main()
         std::cout << "4. Listar Funcionario" << std::endl;
         std::cout << "5. Cadastrar Novo Quarto" << std::endl;
         std::cout << "6. Listar Quartos" << std::endl;
+        std::cout << "7. Cadastrar Estadia" << std::endl;
+        std::cout << "8. Finalizar Estadia" << std::endl;
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Escolha uma opcao: ";
 
@@ -47,7 +42,6 @@ int main()
         {
         case 0: // Saindo
             std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
-            //  delay(2);
             break;
 
         case 1: // Chama a função que coleta dados e cadastra
@@ -60,8 +54,8 @@ int main()
         case 2: // Lista os clientes cadastrados
             listarClientes();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
-            std::cin.get();               // Espera o usuário apertar Enter para continuar
+            std::cin.ignore(10000, '\n'); 
+            std::cin.get();              
             break;
 
         case 3: // Cadastrar Funcionario
@@ -74,8 +68,8 @@ int main()
         case 4: // Lista os clientes cadastrados
             listarFuncionario();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
-            std::cin.get();               // Espera o usuário apertar Enter para continuar
+            std::cin.ignore(10000, '\n'); 
+            std::cin.get();               
             break;
 
         case 5: // Cadastrar Funcionario
@@ -88,8 +82,22 @@ int main()
         case 6: // Lista os clientes cadastrados
             listarQuartos();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
-            std::cin.get();               // Espera o usuário apertar Enter para continuar
+            std::cin.ignore(10000, '\n'); 
+            std::cin.get();               
+            break;
+
+        case 7: // Lista os clientes cadastrados
+            cadastrarEstadia();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.ignore(10000, '\n');
+            std::cin.get();              
+            break;
+
+           case 8: // Lista os clientes cadastrados
+            finalizarEstadia();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.ignore(10000, '\n');
+            std::cin.get();              
             break;
 
         default:

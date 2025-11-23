@@ -38,27 +38,28 @@ bool cadastrarQuarto(int num, int hospedes, double diaria, int status)
         opcao = "ocupado";
         break;
 
-    case 3:
-        opcao = "manutencao";
-        break;
+        // case 3:
+        //     opcao = "manutencao";
+        //     break;
 
-    case 4:
-        opcao = "limpeza";
-        break;
+        // case 4:
+        //     opcao = "limpeza";
+        //     break;
 
     default:
         std::cout << "Opcao invalida!\n";
         opcao = "desconhecido";
         break;
     }
+
     Quarto novoQuarto(num, hospedes, diaria, status);
 
     listaDeQuarto.push_back(novoQuarto);
 
-    std::cout << "Quarto '" << num << "' Cadastrado com sucesso!" << std::endl;
-    std::cout << "Quantidade de hospedes: " << hospedes << std::endl;
-    std::cout << "Valor da diaria: " << diaria << std::endl;
-    std::cout << "Status: " << opcao << std::endl;
+    std::cout << "\n - Quarto '" << num << "' Cadastrado com sucesso!" << std::endl;
+    std::cout << " - Quantidade de hospedes: " << hospedes << std::endl;
+    std::cout << " - Valor da diaria: " << diaria << std::endl;
+    std::cout << " - Status: " << opcao << std::endl;
 
     return true;
 }
@@ -70,26 +71,28 @@ void quarto()
 
     std::cout << "\n-=-| Cadastro de Quartos |-=-" << std::endl;
 
-    std::cout << " Informe o NUMERO DO QUARTO " << std::endl;
+    std::cout << "*Informe o numero do quarto:  ";
     std::cin >> num;
 
     while (numeroExiste(num))
     {
-        std::cout << " Esse quarto ja esta cadastrado! \n Digite outro: ";
+        std::cout << "*Esse quarto ja esta cadastrado! \n Digite outro: ";
         std::cin >> num;
     }
 
-    std::cout << " Informe a QUANTIDADE DE HOSPEDES DO QUARTO " << std::endl;
+    std::cout << "*Informe a quantidade de hospedes do quarto: ";
     std::cin >> hospedes;
 
-    std::cout << " Informe o VALOR DA DIARIA DO QUARTO " << std::endl;
+    std::cout << "*Informe o valor da diaria do quarto: ";
     std::cin >> diaria;
 
-    std::cout << " Informe o STATUS DO QUARTO " << std::endl;
-    std::cout << " 1 - Disponivel\n"
-              << " 2 - Ocupado"
-              << std::endl;
-    std::cin >> status;
+    do
+    {
+        std::cout << "*Informe o status do quarto  ";
+        std::cout << " 1 - Disponivel "
+                  << " | 2 - Ocupado: ";
+        std::cin >> status;
+    } while (status != 1 && status != 2);
 
     cadastrarQuarto(num, hospedes, diaria, status);
 }
@@ -101,16 +104,41 @@ void listarQuartos()
 
     if (listaDeQuarto.empty())
     {
-        std::cout << "Nenhum quarto cadastrado. " << std::endl;
+        std::cout << "*Nenhum quarto cadastrado.* " << std::endl;
         return;
     }
 
     for (const auto &quarto : listaDeQuarto)
     {
+        std::string opcao;
+
+        switch (quarto.getStatus())
+        {
+        case 1:
+            opcao = "Disponivel";
+            break;
+
+        case 2:
+            opcao = "Ocupado";
+            break;
+
+            // case 3:
+            //     opcao = "manutencao";
+            //     break;
+
+            // case 4:
+            //     opcao = "limpeza";
+            //     break;
+
+        default:
+            std::cout << "Opcao invalida!\n";
+            opcao = "desconhecido";
+            break;
+        }
         std::cout << "Numero: " << quarto.getNumeroDoQuarto()
                   << ", Quantidade de hospedes: " << quarto.getQuantidadeDeHospedes()
                   << ", Valor da diaria: " << quarto.getValorDaDiaria()
-                  << ", Status: " << quarto.getStatus() << std::endl;
+                  << ", Status: " << opcao << std::endl;
     }
     std::cout << "------------------------------------------" << std::endl;
 }

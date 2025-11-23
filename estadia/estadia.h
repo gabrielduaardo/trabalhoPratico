@@ -1,11 +1,18 @@
+#ifndef ESTADIA_H
+#define ESTADIA_H
+
+#include <string>
+#include <vector>
+#include <iostream>
+
 class Estadia {
 private:
     int codigoDaEstadia;
     std::string dataDeEntrada;
     std::string dataDeSaida;
     int quantidadeDeDiarias;
-    int codigoDoCliente; // Chave estrangeira para Cliente
-    int numeroDoQuarto;  // Chave estrangeira para Quarto
+    int codigoDoCliente; 
+    int numeroDoQuarto;
 
 public:
     // Construtor
@@ -22,3 +29,5 @@ public:
     int getCodigoDoCliente() const { return codigoDoCliente; }
     int getNumeroDoQuarto() const { return numeroDoQuarto; }
 };
+
+#endif

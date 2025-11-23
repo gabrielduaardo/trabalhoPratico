@@ -23,16 +23,16 @@ void funcionario()
 
     std::cout << "\n-=-| Cadastro de Funcionario |-=-" << std::endl;
 
-    std::cout << " Informe o NOME " << std::endl;
+    std::cout << "*Informe o nome do funcionario: ";
     std::cin >> nome;
 
-    std::cout << " Informe o NUMERO DE TELEFONE " << std::endl;
+    std::cout << "*Informe o telefone do funcionario: ";
     std::cin >> telefone;
 
-    std::cout << " Informe o CARGO " << std::endl;
+    std::cout << "*Informe o cargo do funcionario: ";
     std::cin >> cargo;
 
-    std::cout << " Informe o SALARIO " << std::endl;
+    std::cout << "*Informe o salario do funcionario: ";
     std::cin >> salario;
 
     // Cadastro dos Funcioanrio
@@ -49,8 +49,8 @@ bool cadastrarFuncionario(const std::string &nome, const std::string &telefone, 
     listaDeFuncionario.push_back(novoFuncionario);
     proximoCodigo++;
 
-    std::cout << "Funcionario '" << nome << "' cadastrado com sucesso!" << std::endl;
-    std::cout << "Codigo atribuido: " << novoFuncionario.getCodigo() << std::endl;
+    std::cout << "\n - Funcionario '" << nome << "' cadastrado com sucesso!" << std::endl;
+    std::cout << " - Codigo atribuido: " << novoFuncionario.getCodigo() << std::endl;
 
     return true;
 }
@@ -61,7 +61,7 @@ void listarFuncionario()
 
     if (listaDeFuncionario.empty())
     {
-        std::cout << "Nenhum funcionario cadastrado. " << std::endl;
+        std::cout << "*Nenhum funcionario cadastrado.* " << std::endl;
         return;
     }
 
