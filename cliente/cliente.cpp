@@ -1,4 +1,4 @@
-/*  -=-=-=-=| LEGENDA cliente.pp |-=-=-=-= 
+/*  -=-=-=-=| LEGENDA cliente.pp |-=-=-=-=
 
 nom = nome que vai receber do usuario
 end = endereço que vai receber do usuario
@@ -8,16 +8,18 @@ push_back é um método de vetores que adiciona um novo elemento ao final do con
 
    -=-=-=-=| FIM |-=-=-=-=*/
 #include "cliente.h" // Inclui as declarações que estão em cliente.h
+#include "../estadia/estadia.h"
+
+// #extern void estadia();
 
 // DEFINIÇÃO da variável global (aloca o espaço na memória)
 std::vector<Cliente> listaDeClientes;
 
 // DEFINIÇÃO do Construtor
-Cliente::Cliente(int cod, const std::string& nom, const std::string& end, const std::string& tel)
+Cliente::Cliente(int cod, const std::string &nom, const std::string &end, const std::string &tel)
     : codigo(cod), nome(nom), endereco(end), telefone(tel) {}
 
 // DEFINIÇÃO da função de cadastro
-
 
 void cliente()
 {
@@ -39,9 +41,9 @@ void cliente()
     cadastrarCliente(nome, endereco, telefone);
 }
 
-
-bool cadastrarCliente(const std::string& nome, const std::string& endereco, const std::string& telefone) {
-    static int proximoCodigo = 1; 
+bool cadastrarCliente(const std::string &nome, const std::string &endereco, const std::string &telefone)
+{
+    static int proximoCodigo = 1;
     Cliente novoCliente(proximoCodigo, nome, endereco, telefone);
     listaDeClientes.push_back(novoCliente);
     proximoCodigo++;
@@ -53,17 +55,50 @@ bool cadastrarCliente(const std::string& nome, const std::string& endereco, cons
 }
 
 // DEFINIÇÃO da função de listagem
-void listarClientes() {
+void listarClientes()
+{
     std::cout << "\n-=-| Lista de Clientes Cadastrados (" << listaDeClientes.size() << ") |-=-" << std::endl;
-    if (listaDeClientes.empty()) {
+    if (listaDeClientes.empty())
+    {
         std::cout << "*Nenhum cliente cadastrado.*" << std::endl;
         return;
     }
-    for (const auto& cliente : listaDeClientes) {
+    for (const auto &cliente : listaDeClientes)
+    {
         std::cout << "Codigo: " << cliente.getCodigo()
                   << ", Nome: " << cliente.getNome()
-                  << ", Endereco: " <<cliente.getEndereco()
+                  << ", Endereco: " << cliente.getEndereco()
                   << ", Telefone: " << cliente.getTelefone() << std::endl;
     }
     std::cout << "------------------------------------------" << std::endl;
+}
+
+void buscarCliente()
+{
+    int codigo;
+
+    if (listaDeClientes.empty())
+    {
+        std::cout << "*Nenhum cliente cadastrado.*" << std::endl;
+        return;
+    }
+
+    std::cout << "*Informe o codigo do cliente: ";
+    std::cin >> codigo;
+   
+    for (const auto &cliente : listaDeClientes)
+    {
+        if (cliente.getCodigo() == codigo)
+        {
+            std::cout << "Codigo: " << cliente.getCodigo()
+                      << ", Nome: " << cliente.getNome()
+                      << ", Endereco: " << cliente.getEndereco()
+                      << ", Telefone: " << cliente.getTelefone() << std::endl;
+        }
+        else
+        {
+            std::cout << "*Cliente nao encontrado!*";
+        }
+    }
+    std::cout << "\n------------------------------------------" << std::endl;
 }

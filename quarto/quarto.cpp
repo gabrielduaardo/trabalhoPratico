@@ -6,7 +6,7 @@ status = status do quarto (ocupado, disponivel)
 */
 
 #include "quarto.h"
-std::vector<Quarto> listaDeQuarto;
+std::vector<Quarto>listaDeQuarto;
 
 // Construtor
 Quarto::Quarto(int num, int hospedes, double diaria, const int status)

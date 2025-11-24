@@ -1,5 +1,5 @@
 #include "../cliente/cliente.h"
-#include "../Quarto/Quarto.h"
+#include "../Quarto/quarto.h"
 #include "estadia.h" // Seus includes das classes
 #include <iostream>
 #include <vector>
@@ -55,7 +55,7 @@ Estadia *buscarEstadiaAtiva(int numQuarto)
     return nullptr;
 }
 
-// --- 1. REGISTRAR ESTADIA (CHECK-IN) ---
+// REGISTRAR ESTADIA (CHECK-IN) ---
 
 void cadastrarEstadia()
 {
@@ -70,7 +70,6 @@ void cadastrarEstadia()
     Cliente *Cliente = nullptr;
     Quarto *Quarto = nullptr;
 
-    // --- A. VALIDAÇÃO E BUSCA DO CLIENTE ---
     do
     {
         std::cout << "\n*Digite o codigo do cliente: ";
@@ -104,7 +103,7 @@ void cadastrarEstadia()
         return;
     }
 
-    // --- B. VALIDAÇÃO E BUSCA DO QUARTO ---
+    //
     resposta = ' '; // Reseta a resposta
     do
     {
@@ -122,7 +121,7 @@ void cadastrarEstadia()
 
             if (std::toupper(resposta) == 'S')
             {
-                quarto(); // ⬅️ CHAMADA RENOMEADA
+                quarto(); //
                 std::cout << "\nQuarto cadastrado! Digite o numero dele novamente para confirmar a estadia." << std::endl;
             }
             else if (std::toupper(resposta) != 'N')
@@ -146,7 +145,6 @@ void cadastrarEstadia()
         return;
     }
 
-    // --- C. INPUT DE DETALHES DA ESTADIA ---
     std::cout << "\n--- DETALHES DA ESTADIA ---" << std::endl;
     std::cout << "Cliente: " << Cliente->getNome() << " | Quarto: " << Quarto->getNumeroDoQuarto() << std::endl;
 
@@ -158,7 +156,7 @@ void cadastrarEstadia()
     std::cout << "*Digite a data de saida (DD/MM/AAAA): ";
     std::cin >> dataSaida;
 
-    // --- D. AÇÃO: CRIAR ESTADIA E ATUALIZAR QUARTO ---
+    // CRIAR ESTADIA E ATUALIZAR QUARTO ---
     Estadia novaEstadia(proximoCodEstadia++, dataEntrada, dataSaida, diarias,
                         Cliente->getCodigo(), Quarto->getNumeroDoQuarto());
 
@@ -170,7 +168,60 @@ void cadastrarEstadia()
     std::cout << " - Quarto " << Quarto->getNumeroDoQuarto() << "." << std::endl;
 }
 
-// --- 2. FINALIZAR ESTADIA (CHECK-OUT) ---
+void listarEstadia()
+{
+    std::cout << "\n-=-| Lista de Estadias Cadastradas (" << listaDeClientes.size() << ") |-=-" << std::endl;
+    if (listaDeClientes.empty())
+    {
+        std::cout << "*Nenhum cliente cadastrado.*" << std::endl;
+        return;
+    }
+    for (const auto &cliente : listaDeClientes)
+    {
+
+        std::cout << "Codigo: " << cliente.getCodigo()
+                  << ", Nome: " << cliente.getNome()
+                  << ", Endereco: " << cliente.getEndereco()
+                  << ", Telefone: " << cliente.getTelefone()
+                  << std::endl;
+    }
+    // }
+
+    std::cout << "------------------------------------------" << std::endl;
+}
+
+void listarEstadiaC()
+{
+    int codigo;
+    std::cout << "\n-=-| Lista de Estadias Cadastradas |-=-" << std::endl;
+
+    std::cout << "*Informe o codigo do cliente: ";
+    std::cin >> codigo;
+
+    if (listaDeClientes.empty())
+    {
+        std::cout << "*Nenhum cliente cadastrado.*" << std::endl;
+        return;
+    }
+    for (const auto &cliente : listaDeClientes)
+    {
+        for (const auto &quarto : listaDeQuarto)
+        {
+            if (cliente.getCodigo() == codigo)
+            {
+                std::cout << "Codigo: " << cliente.getCodigo()
+                          << ", Nome: " << cliente.getNome()
+                          << ", Endereco: " << cliente.getEndereco()
+                          << ", Telefone: " << cliente.getTelefone() 
+                          << ", Numero do Quarto: " << quarto.getNumeroDoQuarto()
+                          << std::endl;
+            }
+        }
+    }
+    std::cout << "------------------------------------------" << std::endl;
+}
+
+// FINALIZAR ESTADIA (CHECK-OUT) ---
 void finalizarEstadia()
 {
     int numQuarto;
@@ -208,6 +259,7 @@ void finalizarEstadia()
         double valorTotal = (double)diarias * valorDiaria;
 
         std::cout << "-=-| RESUMO DA CONTA |-=-" << std::endl;
+        std::cout << " - Estadia Cod: " << estadia->getCodigoDaEstadia() << std::endl;
         std::cout << " - Estadia Cod: " << estadia->getCodigoDaEstadia() << std::endl;
         std::cout << " - Diarias: " << diarias << " x R$ " << valorDiaria << std::endl;
         std::cout << "**VALOR TOTAL A PAGAR: R$ " << valorTotal << "**" << std::endl;
