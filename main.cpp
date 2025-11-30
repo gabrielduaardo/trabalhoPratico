@@ -8,7 +8,7 @@
 // #include "estadia/estadia.h"
 // codigo para rodar o arquivo com tudo .h  g++ main.cpp cliente/cliente.cpp quarto/quarto.cpp estadia/estadia.cpp funcionario/funcionario.cpp -o hotel_app
 
-// #include "funcoes/database.cpp"
+#include "funcoes/database.cpp"
 #include "cliente/cliente.cpp"
 #include "funcionario/funcionario.cpp"
 #include "quarto/quarto.cpp"
@@ -35,6 +35,8 @@
 
 int main()
 {
+    carregarClientes();
+
     int opcao;
     do
     {
@@ -77,6 +79,7 @@ int main()
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n'); // Limpa até 10000 caracteres ou até o Enter residual
             std::cin.get();               // Espera o usuário apertar Enter para continuar
+            salvarClientes();
             break;
 
         case 2: // Lista os clientes cadastrados
@@ -93,61 +96,61 @@ int main()
             std::cin.get();
             break;
 
-        case 4: // Cadastrar Funcionario
-            funcionario();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 4: // Cadastrar Funcionario
+        //     funcionario();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 5: // Lista os clientes cadastrados
-            listarFuncionario();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 5: // Lista os clientes cadastrados
+        //     listarFuncionario();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 6: // Cadastrar Funcionario
-            quarto();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 6: // Cadastrar Funcionario
+        //     quarto();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 7: // Lista os clientes cadastrados
-            listarQuartos();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 7: // Lista os clientes cadastrados
+        //     listarQuartos();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 8: // Lista os clientes cadastrados
-            cadastrarEstadia();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 8: // Lista os clientes cadastrados
+        //     cadastrarEstadia();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 9: // Lista os clientes cadastrados
-            finalizarEstadia();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 9: // Lista os clientes cadastrados
+        //     finalizarEstadia();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 10: // Lista os clientes cadastrados
-            listarEstadia();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 10: // Lista os clientes cadastrados
+        //     listarEstadia();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
-        case 11: // Lista os clientes cadastrados
-            listarEstadiaC();
-            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
-            std::cin.ignore(10000, '\n');
-            std::cin.get();
-            break;
+        // case 11: // Lista os clientes cadastrados
+        //     listarEstadiaC();
+        //     std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+        //     std::cin.ignore(10000, '\n');
+        //     std::cin.get();
+        //     break;
 
         default:
             std::cout << "\nOpcao invalida. Tente novamente." << std::endl;

@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+
+#include "database.h"
 #include "../cliente/cliente.h"
 #include "../quarto/quarto.h"
 #include "../funcionario/funcionario.h"
@@ -13,7 +15,7 @@ using namespace std;
 // ==========================================
 
 void salvarClientesJSON() {
-    ofstream arq("clientes.json");
+    ofstream arq("../clientes.json");
     arq << "[\n";
     for (size_t i = 0; i < listaDeClientes.size(); i++) {
         const Cliente &c = listaDeClientes[i];
@@ -29,7 +31,7 @@ void salvarClientesJSON() {
 }
 
 void salvarFuncionariosJSON() {
-    ofstream arq("funcionarios.json");
+    ofstream arq("../funcionarios.json");
     arq << "[\n";
     for (size_t i = 0; i < listaDeFuncionario.size(); i++) {
         const Funcionario &f = listaDeFuncionario[i];
@@ -46,15 +48,15 @@ void salvarFuncionariosJSON() {
 }
 
 void salvarQuartosJSON() {
-    ofstream arq("quartos.json");
+    ofstream arq("../quartos.json");
     arq << "[\n";
-    for (size_t i = 0; i < listaDeQuartos.size(); i++) {
-        const Quarto &q = listaDeQuartos[i];
+    for (size_t i = 0; i < listaDeQuarto.size(); i++) {
+        const Quarto &q = listaDeQuarto[i];
         arq << "  {\"numero\":" << q.getNumeroDoQuarto()
             << ",\"hospedes\":" << q.getQuantidadeDeHospedes()
             << ",\"valor\":" << q.getValorDaDiaria()
             << ",\"status\":" << q.getStatus() << "}";
-        if (i + 1 < listaDeQuartos.size()) arq << ",";
+        if (i + 1 < listaDeQuarto.size()) arq << ",";
         arq << "\n";
     }
     arq << "]";
@@ -62,7 +64,7 @@ void salvarQuartosJSON() {
 }
 
 void salvarEstadiasJSON() {
-    ofstream arq("estadias.json");
+    ofstream arq("../estadias.json");
     arq << "[\n";
     for (size_t i = 0; i < listaDeEstadias.size(); i++) {
         const Estadia &e = listaDeEstadias[i];
@@ -142,7 +144,7 @@ void carregarQuartosJSON() {
         double valor = stod(pegarValor(linha, "\"valor\":"));
         int status = stoi(pegarValor(linha, "\"status\":"));
 
-        listaDeQuartos.emplace_back(numero, hosp, valor, status);
+        listaDeQuarto.emplace_back(numero, hosp, valor, status);
     }
 }
 
