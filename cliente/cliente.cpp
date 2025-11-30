@@ -9,7 +9,9 @@ push_back é um método de vetores que adiciona um novo elemento ao final do con
    -=-=-=-=| FIM |-=-=-=-=*/
 #include "cliente.h" // Inclui as declarações que estão em cliente.h
 #include "../estadia/estadia.h"
-
+#include <limits>
+#include <iostream>
+#include <string>
 // #extern void estadia();
 
 // DEFINIÇÃO da variável global (aloca o espaço na memória)
@@ -28,14 +30,16 @@ void cliente()
 
     std::cout << "\n-=-| Cadastro de Cliente |-=-" << std::endl;
 
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
     std::cout << "*Informe o nome do cliente: ";
-    std::cin >> nome;
+    std::getline(std::cin, nome);
 
     std::cout << "*Informe o endereco do cliente: ";
-    std::cin >> endereco;
+    std::getline(std::cin, endereco);
 
     std::cout << "*Informe o telefone do clinete: ";
-    std::cin >> telefone;
+    std::getline(std::cin, telefone);
 
     // Cadastro dos clientes
     cadastrarCliente(nome, endereco, telefone);
@@ -85,7 +89,7 @@ void buscarCliente()
 
     std::cout << "*Informe o codigo do cliente: ";
     std::cin >> codigo;
-   
+
     for (const auto &cliente : listaDeClientes)
     {
         if (cliente.getCodigo() == codigo)

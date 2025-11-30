@@ -8,6 +8,7 @@
 // #include "estadia/estadia.h"
 // codigo para rodar o arquivo com tudo .h  g++ main.cpp cliente/cliente.cpp quarto/quarto.cpp estadia/estadia.cpp funcionario/funcionario.cpp -o hotel_app
 
+// #include "funcoes/database.cpp"
 #include "cliente/cliente.cpp"
 #include "funcionario/funcionario.cpp"
 #include "quarto/quarto.cpp"
@@ -28,6 +29,9 @@
 
 // extern void cadastrarEstadia();
 // extern void finalizarEstadia();
+
+// void salvarTudoEmJSON();
+// void carregarTudoDeJSON();
 
 int main()
 {
