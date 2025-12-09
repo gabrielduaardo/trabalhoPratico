@@ -3,45 +3,33 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 class Estadia {
 private:
-    int codigoDaEstadia;
-    std::string dataDeEntrada;
-    std::string dataDeSaida;
-    int quantidadeDeDiarias;
-    int codigoDoCliente; 
-    int numeroDoQuarto;
-    int status; // 1 = ativa, 0 = finalizada
+    int codigoDaEstadia, codigoDoCliente, numeroDoQuarto, status, quantidadeDeDiarias;
+    std::string dataDeEntrada, dataDeSaida;
 
 public:
-    // Construtor
-    Estadia(int codEstadia, const std::string& dataEnt, const std::string& dataSai,
-            int diarias, int codCliente, int numQuarto)
-        : codigoDaEstadia(codEstadia),
-          dataDeEntrada(dataEnt),
-          dataDeSaida(dataSai),
-          quantidadeDeDiarias(diarias),
-          codigoDoCliente(codCliente),
-          numeroDoQuarto(numQuarto),
-          status(1) {} // Nova estadia comeca ativa
+    Estadia(int cod, std::string ent, std::string sai, int dias, int cli, int qua)
+        : codigoDaEstadia(cod), dataDeEntrada(ent), dataDeSaida(sai), 
+          quantidadeDeDiarias(dias), codigoDoCliente(cli), numeroDoQuarto(qua), status(1) {}
 
-    // Gets
     int getCodigoDaEstadia() const { return codigoDaEstadia; }
-    std::string getDataDeEntrada() const { return dataDeEntrada; }
-    std::string getDataDeSaida() const { return dataDeSaida; }
-    int getQuantidadeDeDiarias() const { return quantidadeDeDiarias; }
     int getCodigoDoCliente() const { return codigoDoCliente; }
     int getNumeroDoQuarto() const { return numeroDoQuarto; }
+    int getQuantidadeDeDiarias() const { return quantidadeDeDiarias; }
     int getStatus() const { return status; }
-
-    // Sets
-    void setDataDeSaida(const std::string& novaData) { dataDeSaida = novaData; }
-    void setQuantidadeDeDiarias(int q) { quantidadeDeDiarias = q; }
+    std::string getDataDeEntrada() const { return dataDeEntrada; }
+    std::string getDataDeSaida() const { return dataDeSaida; }
     void setStatus(int s) { status = s; }
 };
 
-Estadia* buscarEstadiaAtiva(int numQuarto);
+// Protótipos das funções globais
+void cadastrarEstadia();
+void finalizarEstadia();
+void listarEstadia();
+void listarEstadiaC();
+void carregarEstadias();
+void salvarEstadias();
 
 #endif

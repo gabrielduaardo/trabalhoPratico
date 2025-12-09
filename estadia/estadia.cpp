@@ -5,310 +5,203 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <iomanip>
-#include <sstream>
 #include <ctime>
+#include <fstream>
+#include <filesystem>
 
 using namespace std;
 
-// --- VARIAVEIS GLOBAIS ---
 extern vector<Quarto> listaDeQuarto;
 extern vector<Cliente> listaDeClientes;
 vector<Estadia> listaDeEstadias;
 int proximoCodEstadia = 1;
 
-// =======================================================
-// FUNCAO: VALIDAR DATA MANUALMENTE (FUNCIONA NO MINGW)
-// =======================================================
+void salvarEstadias() {
+    filesystem::create_directories("data");
+    ofstream arquivo("data/Estadia.bin", ios::binary | ios::trunc);
+    if (!arquivo.is_open()) return;
+    for (const auto& e : listaDeEstadias) {
+        int id = e.getCodigoDaEstadia();
+        int codC = e.getCodigoDoCliente();
+        int numQ = e.getNumeroDoQuarto();
+        long dias = e.getQuantidadeDeDiarias();
+        int stat = e.getStatus();
+        arquivo.write((char*)&id, sizeof(id));
+        arquivo.write((char*)&codC, sizeof(codC));
+        arquivo.write((char*)&numQ, sizeof(numQ));
+        arquivo.write((char*)&dias, sizeof(dias));
+        arquivo.write((char*)&stat, sizeof(stat));
+        auto gravarString = [&](const string& s) {
+            size_t size = s.size();
+            arquivo.write((char*)&size, sizeof(size));
+            arquivo.write(s.c_str(), size);
+        };
+        gravarString(e.getDataDeEntrada());
+        gravarString(e.getDataDeSaida());
+    }
+    arquivo.close();
+}
 
-bool parseDate(const string &s, int &dia, int &mes, int &ano)
-{
-    if (s.size() != 10) return false;
-    if (s[2] != '/' || s[5] != '/') return false;
+void carregarEstadias() {
+    ifstream arquivo("data/Estadia.bin", ios::binary);
+    if (!arquivo.is_open()) return;
+    listaDeEstadias.clear();
+    while (true) {
+        int id, codC, numQ, stat; long dias;
+        if (!arquivo.read((char*)&id, sizeof(id))) break;
+        arquivo.read((char*)&codC, sizeof(codC));
+        arquivo.read((char*)&numQ, sizeof(numQ));
+        arquivo.read((char*)&dias, sizeof(dias));
+        arquivo.read((char*)&stat, sizeof(stat));
+        auto lerString = [&](string& s) {
+            size_t size;
+            arquivo.read((char*)&size, sizeof(size));
+            s.resize(size);
+            arquivo.read(&s[0], size);
+        };
+        string dE, dS;
+        lerString(dE); lerString(dS);
+        Estadia e(id, dE, dS, dias, codC, numQ);
+        e.setStatus(stat);
+        listaDeEstadias.push_back(e);
+        if (id >= proximoCodEstadia) proximoCodEstadia = id + 1;
+    }
+    arquivo.close();
+}
 
+bool parseDate(const string &s, int &dia, int &mes, int &ano) {
+    if (s.size() != 10 || s[2] != '/' || s[5] != '/') return false;
     try {
         dia = stoi(s.substr(0, 2));
         mes = stoi(s.substr(3, 2));
         ano = stoi(s.substr(6, 4));
-    } catch (...) {
-        return false;
-    }
-
-    if (ano < 1900 || ano > 2100) return false;
-    if (mes < 1 || mes > 12) return false;
-    if (dia < 1 || dia > 31) return false;
-
+    } catch (...) { return false; }
     return true;
 }
 
-// =======================================================
-// CALCULAR DIARIAS SEM GET_TIME (FUNCIONA EM QUALQUER G++)
-// =======================================================
-
-long int calcularDiarias(const string &dataEntradaStr, const string &dataSaidaStr)
-{
-    int d1, m1, y1;
-    int d2, m2, y2;
-
-    if (!parseDate(dataEntradaStr, d1, m1, y1)) return -1;
-    if (!parseDate(dataSaidaStr, d2, m2, y2)) return -1;
-
-    tm entrada = {};
-    tm saida = {};
-
-    entrada.tm_mday = d1;
-    entrada.tm_mon = m1 - 1;
-    entrada.tm_year = y1 - 1900;
-
-    saida.tm_mday = d2;
-    saida.tm_mon = m2 - 1;
-    saida.tm_year = y2 - 1900;
-
-    time_t t1 = mktime(&entrada);
-    time_t t2 = mktime(&saida);
-
-    if (t1 == -1 || t2 == -1) return -1;
-
-    double diff = difftime(t2, t1);
-
-    long diarias = diff / 86400;
-
-    if (diarias < 0) return -1;
-    if (diarias == 0) return 1;
-
-    return diarias;
+time_t stringParaTimeT(string dataStr) {
+    int d, m, a;
+    if (!parseDate(dataStr, d, m, a)) return -1;
+    tm t = {};
+    t.tm_mday = d; t.tm_mon = m - 1; t.tm_year = a - 1900;
+    return mktime(&t);
 }
 
-// =======================================================
-// BUSCAR ESTADIA ATIVA
-// =======================================================
-
-Estadia *buscarEstadiaAtiva(int numQuarto)
-{
-    for (int i = listaDeEstadias.size() - 1; i >= 0; i--)
-    {
-        if (listaDeEstadias[i].getNumeroDoQuarto() == numQuarto &&
-            listaDeEstadias[i].getStatus() == 1) // 1 = ativa
-        {
-            return &listaDeEstadias[i];
+// VERIFICA SE O PERÍODO DESEJADO CONFLITA COM RESERVAS EXISTENTES
+bool verificarConflito(int numQuarto, time_t tEnt, time_t tSai) {
+    for (const auto &e : listaDeEstadias) {
+        if (e.getNumeroDoQuarto() == numQuarto && e.getStatus() == 1) {
+            time_t resEnt = stringParaTimeT(e.getDataDeEntrada());
+            time_t resSai = stringParaTimeT(e.getDataDeSaida());
+            
+            // Lógica: (Entrada1 < Saida2) E (Saida1 > Entrada2) -> Houve choque
+            if (tEnt < resSai && tSai > resEnt) return true;
         }
     }
+    return false;
+}
+
+Quarto *buscarQuartoPtr(int num) {
+    for (auto &q : listaDeQuarto) if (q.getNumeroDoQuarto() == num) return &q;
     return nullptr;
 }
 
-// =======================================================
-// BUSCAR QUARTO
-// =======================================================
-
-Quarto *buscarQuarto(int numQuarto)
-{
-    auto it = find_if(listaDeQuarto.begin(), listaDeQuarto.end(),
-                      [numQuarto](Quarto &q)
-                      { return q.getNumeroDoQuarto() == numQuarto; });
-
-    return (it != listaDeQuarto.end()) ? &(*it) : nullptr;
+Cliente *buscarClientePtr(int cod) {
+    for (auto &c : listaDeClientes) if (c.getCodigo() == cod) return &c;
+    return nullptr;
 }
 
-// =======================================================
-// BUSCAR CLIENTE
-// =======================================================
-
-Cliente *buscarCliente(int codCliente)
-{
-    auto it = find_if(listaDeClientes.begin(), listaDeClientes.end(),
-                      [codCliente](const Cliente &c)
-                      { return c.getCodigo() == codCliente; });
-
-    return (it != listaDeClientes.end()) ? &(*it) : nullptr;
-}
-
-// =======================================================
-// CADASTRAR ESTADIA (CHECK-IN)
-// =======================================================
-
-void cadastrarEstadia()
-{
-    int codCliente, numQuarto;
-    string dataEntrada, dataSaida;
-    long int diarias;
-    char resposta;
+void cadastrarEstadia() {
+    int codC, numQ, pessoas;
+    string dEnt, dSai;
+    char resp;
 
     cout << "\n-=-| REGISTRAR NOVA ESTADIA |-=-\n";
 
-    Cliente *ClientePtr = nullptr;
-    Quarto *QuartoPtr = nullptr;
+    Cliente *cPtr = nullptr;
+    do {
+        cout << "Codigo do cliente: "; cin >> codC;
+        cPtr = buscarClientePtr(codC);
+        if (!cPtr) {
+            cout << "Cliente nao encontrado. Cadastrar novo? (S/N): "; cin >> resp;
+            if (toupper(resp) == 'S') { cliente(); cPtr = buscarClientePtr(codC); }
+        }
+    } while (!cPtr);
 
-    // CLIENTE
-    do
-    {
-        cout << "Codigo do cliente: ";
-        cin >> codCliente;
+    Quarto *qPtr = nullptr;
+    do {
+        cout << "Numero do quarto: "; cin >> numQ;
+        qPtr = buscarQuartoPtr(numQ);
+        if (!qPtr) {
+            cout << "Quarto nao cadastrado. Cadastrar agora? (S/N): "; cin >> resp;
+            if (toupper(resp) == 'S') { quarto(); qPtr = buscarQuartoPtr(numQ); }
+        } else {
+            cout << "Quantos hospedes: "; cin >> pessoas;
+            if (pessoas > qPtr->getQuantidadeDeHospedes()) {
+                cout << "[ERRO] Quarto comporta so " << qPtr->getQuantidadeDeHospedes() << "\n";
+                qPtr = nullptr;
+            }
+        }
+    } while (!qPtr);
 
-        ClientePtr = buscarCliente(codCliente);
+    while (true) {
+        cout << "Entrada (DD/MM/AAAA): "; cin >> dEnt;
+        cout << "Saida (DD/MM/AAAA): "; cin >> dSai;
 
-        if (!ClientePtr)
-        {
-            cout << "Cliente nao encontrado. Cadastrar? (S/N): ";
-            cin >> resposta;
+        time_t t1 = stringParaTimeT(dEnt);
+        time_t t2 = stringParaTimeT(dSai);
 
-            if (toupper(resposta) == 'S')
-                cliente();
+        if (t1 == -1 || t2 == -1 || t1 >= t2) {
+            cout << "Datas invalidas ou Saida menor que Entrada!\n";
+            continue;
         }
 
-    } while (!ClientePtr);
-
-    // QUARTO
-    do
-    {
-        cout << "\nNumero do quarto: ";
-        cin >> numQuarto;
-
-        QuartoPtr = buscarQuarto(numQuarto);
-
-        if (!QuartoPtr)
-        {
-            cout << "Quarto nao encontrado. Cadastrar? (S/N): ";
-            cin >> resposta;
-
-            if (toupper(resposta) == 'S')
-                quarto();
+        if (verificarConflito(numQ, t1, t2)) {
+            cout << "[ERRO] Quarto " << numQ << " ja reservado neste periodo! Escolha outras datas.\n";
+            continue;
         }
-        else if (QuartoPtr->getStatus() != 1)
-        {
-            cout << "Quarto esta ocupado!\n";
-            QuartoPtr = nullptr;
-        }
-
-    } while (!QuartoPtr);
-
-    // DATAS
-    cout << "\nData de entrada (DD/MM/AAAA): ";
-    cin >> dataEntrada;
-
-    cout << "Data de saida (DD/MM/AAAA): ";
-    cin >> dataSaida;
-
-    diarias = calcularDiarias(dataEntrada, dataSaida);
-
-    if (diarias <= 0)
-    {
-        cout << "Erro: datas invalidas!\n";
-        return;
+        break;
     }
 
-    // CADASTRAR
-    Estadia nova(
-        proximoCodEstadia++,
-        dataEntrada,
-        dataSaida,
-        diarias,
-        ClientePtr->getCodigo(),
-        QuartoPtr->getNumeroDoQuarto());
-
+    long diarias = (stringParaTimeT(dSai) - stringParaTimeT(dEnt)) / 86400;
+    Estadia nova(proximoCodEstadia++, dEnt, dSai, (diarias == 0 ? 1 : (int)diarias), codC, numQ);
     listaDeEstadias.push_back(nova);
-
-    QuartoPtr->setStatus(2);
-
-    cout << "\nEstadia cadastrada com sucesso!\n";
+    
+    salvarEstadias();
+    cout << "\nEstadia registrada com sucesso!\n";
 }
 
-// =======================================================
-// LISTAR TODAS AS ESTADIAS
-// =======================================================
+void finalizarEstadia() {
+    int num; cout << "\nQuarto para checkout: "; cin >> num;
+    Quarto *qPtr = buscarQuartoPtr(num);
+    if (!qPtr) { cout << "Nao existe!\n"; return; }
 
-void listarEstadia()
-{
-    cout << "\n-=-| Lista de Estadias |-=-\n";
-
-    if (listaDeEstadias.empty())
-    {
-        cout << "*Nenhuma estadia cadastrada.*\n";
-        return;
-    }
-
-    for (const auto &e : listaDeEstadias)
-    {
-        cout << "Estadia " << e.getCodigoDoCliente()
-             << " | Cliente: " << e.getCodigoDoCliente()
-             << " | Quarto: " << e.getNumeroDoQuarto()
-             << " | Entrada: " << e.getDataDeEntrada()
-             << " | Saida: " << e.getDataDeSaida()
-             << " | Diarias: " << e.getQuantidadeDeDiarias()
-             << endl;
-    }
-}
-
-// =======================================================
-// LISTAR ESTADIAS POR CLIENTE
-// =======================================================
-
-void listarEstadiaC()
-{
-    int codigoCliente;
-
-    cout << "\nCodigo do cliente: ";
-    cin >> codigoCliente;
-
-    Cliente *cliente = buscarCliente(codigoCliente);
-
-    if (!cliente)
-    {
-        cout << "Cliente nao encontrado!\n";
-        return;
-    }
-
-    cout << "\nEstadias de: " << cliente->getNome() << "\n";
-
-    for (auto &e : listaDeEstadias)
-    {
-        if (e.getCodigoDoCliente() == codigoCliente)
-        {
-            cout << "- Estadia " << e.getCodigoDaEstadia()
-                 << " | Quarto " << e.getNumeroDoQuarto()
-                 << " | Entrada: " << e.getDataDeEntrada()
-                 << " | Diarias: " << e.getQuantidadeDeDiarias()
-                 << "\n";
+    cout << "\n--- Reservas Ativas para o Quarto " << num << " ---\n";
+    for (const auto &e : listaDeEstadias) {
+        if (e.getNumeroDoQuarto() == num && e.getStatus() == 1) {
+            cout << "ID: " << e.getCodigoDaEstadia() << " | " << e.getDataDeEntrada() << " a " << e.getDataDeSaida() << endl;
         }
     }
+
+    int id; cout << "\nID da estadia para finalizar: "; cin >> id;
+    for (auto &e : listaDeEstadias) {
+        if (e.getCodigoDaEstadia() == id && e.getStatus() == 1) {
+            e.setStatus(0);
+            cout << "Total: R$ " << e.getQuantidadeDeDiarias() * qPtr->getValorDaDiaria() << endl;
+            break;
+        }
+    }
+    salvarEstadias();
 }
 
-// =======================================================
-// FINALIZAR ESTADIA (CHECK-OUT)
-// =======================================================
+void listarEstadia() {
+    for (const auto &e : listaDeEstadias)
+        cout << "Estadia ID: " << e.getCodigoDaEstadia() << " | Quarto: " << e.getNumeroDoQuarto() << " | Status: " << (e.getStatus() == 1 ? "Ativa" : "Finalizada") << endl;
+}
 
-void finalizarEstadia()
-{
-    int numQuarto;
-
-    cout << "\nNumero do quarto para checkout: ";
-    cin >> numQuarto;
-
-    Quarto *QuartoPtr = buscarQuarto(numQuarto);
-    Estadia *estadia = buscarEstadiaAtiva(numQuarto);
-
-    if (!QuartoPtr)
-    {
-        cout << "Quarto nao encontrado!\n";
-        return;
-    }
-
-    if (QuartoPtr->getStatus() != 2)
-    {
-        cout << "Quarto nao esta ocupado!\n";
-        return;
-    }
-
-    QuartoPtr->setStatus(1);
-
-    cout << "\nCHECKOUT CONCLUIDO!\nQuarto liberado.\n";
-
-    if (estadia)
-    {
-        double valorTotal = estadia->getQuantidadeDeDiarias() * QuartoPtr->getValorDaDiaria();
-
-        cout << "\nResumo da Conta:\n";
-        cout << "Estadia: " << estadia->getCodigoDaEstadia() << "\n";
-        cout << "Diarias: " << estadia->getQuantidadeDeDiarias() << "\n";
-        cout << "Valor total: R$ " << valorTotal << "\n";
-    }
+void listarEstadiaC() {
+    int cod; cout << "Cod Cliente: "; cin >> cod;
+    for (const auto &e : listaDeEstadias)
+        if (e.getCodigoDoCliente() == cod)
+            cout << "Estadia " << e.getCodigoDaEstadia() << " | Quarto " << e.getNumeroDoQuarto() << endl;
 }

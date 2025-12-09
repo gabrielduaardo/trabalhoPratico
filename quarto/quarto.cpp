@@ -1,144 +1,125 @@
-/*
-num = numero do quarto
-hospedes = quantidade de hospedes
-diaria = valor da diaria
-status = status do quarto (ocupado, disponivel)
-*/
-
 #include "quarto.h"
-std::vector<Quarto>listaDeQuarto;
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <filesystem>
+
+std::vector<Quarto> listaDeQuarto;
 
 // Construtor
-Quarto::Quarto(int num, int hospedes, double diaria, const int status)
+Quarto::Quarto(int num, int hospedes, double diaria, int status)
     : numeroDoQuarto(num), quantidadeDeHospedes(hospedes), valorDaDiaria(diaria), status(status) {}
 
-bool numeroExiste(int num)
-{
-    for (const auto &quarto : listaDeQuarto)
-    {
-        if (quarto.getNumeroDoQuarto() == num)
-        {
-            return true;
-        }
+bool numeroExiste(int num) {
+    for (const auto &quarto : listaDeQuarto) {
+        if (quarto.getNumeroDoQuarto() == num) return true;
     }
     return false;
 }
 
-bool cadastrarQuarto(int num, int hospedes, double diaria, int status)
-{
-    std::string opcao;
+// ----------------------------------------------------
+// CARREGAR BINÁRIO (Atualizado)
+// ----------------------------------------------------
+void carregarQuarto() {
+    namespace fs = std::filesystem;
+    fs::create_directories("data");
 
-    switch (status)
-    {
-    case 1:
-        opcao = "disponivel";
-        break;
-
-    case 2:
-        opcao = "ocupado";
-        break;
-
-        // case 3:
-        //     opcao = "manutencao";
-        //     break;
-
-        // case 4:
-        //     opcao = "limpeza";
-        //     break;
-
-    default:
-        std::cout << "Opcao invalida!\n";
-        opcao = "desconhecido";
-        break;
+    // Abre o arquivo em modo binário
+    std::ifstream arquivo("data/Quarto.bin", std::ios::binary);
+    
+    if (!arquivo.is_open()) {
+        std::cout << "[INFO] Nenhum arquivo Quarto.bin encontrado." << std::endl;
+        return;
     }
 
+    listaDeQuarto.clear();
+    
+    // Objeto temporário para ler os dados
+    // Inicializamos com valores padrão pois o read vai sobrescrever a memória
+    Quarto temp(0, 0, 0.0, 0);
+
+    // Lê o arquivo bloco por bloco do tamanho da classe Quarto
+    while (arquivo.read(reinterpret_cast<char*>(&temp), sizeof(Quarto))) {
+        listaDeQuarto.push_back(temp);
+    }
+
+    arquivo.close();
+    std::cout << "[OK] " << listaDeQuarto.size() << " quartos carregados com sucesso.\n";
+}
+
+// ----------------------------------------------------
+// SALVAR BINÁRIO (Atualizado)
+// ----------------------------------------------------
+void salvarQuarto() {
+    namespace fs = std::filesystem;
+    fs::create_directories("data");
+
+    // Abre o arquivo em modo binário e trunc (sobrescreve)
+    std::ofstream arquivo("data/Quarto.bin", std::ios::binary | std::ios::trunc);
+    
+    if (!arquivo.is_open()) {
+        std::cerr << "[ERRO] Falha ao abrir arquivo para salvar!\n";
+        return;
+    }
+
+    // Grava cada objeto da lista diretamente da memória
+    for (const auto& q : listaDeQuarto) {
+        arquivo.write(reinterpret_cast<const char*>(&q), sizeof(Quarto));
+    }
+
+    arquivo.close();
+    std::cout << "[OK] Dados salvos em binario.\n";
+}
+
+// ----------------------------------------------------
+// RESTANTE DAS FUNÇÕES (Mantidas)
+// ----------------------------------------------------
+
+bool cadastrarQuarto(int num, int hospedes, double diaria, int status) {
     Quarto novoQuarto(num, hospedes, diaria, status);
-
     listaDeQuarto.push_back(novoQuarto);
-
-    std::cout << "\n - Quarto '" << num << "' Cadastrado com sucesso!" << std::endl;
-    std::cout << " - Quantidade de hospedes: " << hospedes << std::endl;
-    std::cout << " - Valor da diaria: " << diaria << std::endl;
-    std::cout << " - Status: " << opcao << std::endl;
-
+    
+    salvarQuarto(); // Salva automaticamente após cadastrar
+    std::cout << "\n - Quarto " << num << " cadastrado com sucesso!" << std::endl;
     return true;
 }
 
-void quarto()
-{
+void quarto() {
     int num, hospedes, status;
-    float diaria;
+    double diaria;
 
     std::cout << "\n-=-| Cadastro de Quartos |-=-" << std::endl;
-
-    std::cout << "*Informe o numero do quarto:  ";
+    std::cout << "*Informe o numero do quarto: ";
     std::cin >> num;
 
-    while (numeroExiste(num))
-    {
-        std::cout << "*Esse quarto ja esta cadastrado! \n Digite outro: ";
+    while (numeroExiste(num)) {
+        std::cout << "*Esse quarto ja existe! Digite outro: ";
         std::cin >> num;
     }
 
-    std::cout << "*Informe a quantidade de hospedes do quarto: ";
-    std::cin >> hospedes;
+    std::cout << "*Hospedes: "; std::cin >> hospedes;
+    std::cout << "*Valor diaria: "; std::cin >> diaria;
 
-    std::cout << "*Informe o valor da diaria do quarto: ";
-    std::cin >> diaria;
-
-    do
-    {
-        std::cout << "*Informe o status do quarto  ";
-        std::cout << " 1 - Disponivel "
-                  << " | 2 - Ocupado: ";
+    do {
+        std::cout << "*Status (1-Disponivel, 2-Ocupado): ";
         std::cin >> status;
     } while (status != 1 && status != 2);
 
     cadastrarQuarto(num, hospedes, diaria, status);
 }
 
-void listarQuartos()
-{
-
-    std::cout << "\n-=-| Lista de Quartos Cadastrados ( " << listaDeQuarto.size() << " ) |-=-" << std::endl;
-
-    if (listaDeQuarto.empty())
-    {
-        std::cout << "*Nenhum quarto cadastrado.* " << std::endl;
+void listarQuartos() {
+    std::cout << "\n-=-| Quartos Cadastrados |-=-" << std::endl;
+    if (listaDeQuarto.empty()) {
+        std::cout << "Nenhum quarto na lista." << std::endl;
         return;
     }
 
-    for (const auto &quarto : listaDeQuarto)
-    {
-        std::string opcao;
-
-        switch (quarto.getStatus())
-        {
-        case 1:
-            opcao = "Disponivel";
-            break;
-
-        case 2:
-            opcao = "Ocupado";
-            break;
-
-            // case 3:
-            //     opcao = "manutencao";
-            //     break;
-
-            // case 4:
-            //     opcao = "limpeza";
-            //     break;
-
-        default:
-            std::cout << "Opcao invalida!\n";
-            opcao = "desconhecido";
-            break;
-        }
-        std::cout << "Numero: " << quarto.getNumeroDoQuarto()
-                  << ", Quantidade de hospedes: " << quarto.getQuantidadeDeHospedes()
-                  << ", Valor da diaria: " << quarto.getValorDaDiaria()
-                  << ", Status: " << opcao << std::endl;
+    for (const auto &q : listaDeQuarto) {
+        std::string statusStr = (q.getStatus() == 1) ? "Disponivel" : "Ocupado";
+        std::cout << "Num: " << q.getNumeroDoQuarto() 
+                  << " | Hosp: " << q.getQuantidadeDeHospedes()
+                  << " | Diaria: " << q.getValorDaDiaria()
+                  << " | Status: " << statusStr << std::endl;
     }
-    std::cout << "------------------------------------------" << std::endl;
 }

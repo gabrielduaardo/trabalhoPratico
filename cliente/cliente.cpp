@@ -16,71 +16,78 @@ Cliente::Cliente(int cod, const std::string &nom, const std::string &end, const 
 
 int proximoCodigoCliente = 1; // autoincremento real baseado no CSV
 
-// ----------------------------------------------------
-// CARREGAR CSV
-// ----------------------------------------------------
-void carregarClientes()
-{
+void salvarClientes() {
     namespace fs = std::filesystem;
     fs::create_directories("data");
 
-    std::ifstream arquivo("data/clientes.csv");
-    if (!arquivo.is_open())
-    {
-        std::cout << "[INFO] Nenhum arquivo clientes.csv encontrado. Criando novo..." << std::endl;
+    // Abre em modo binário
+    std::ofstream arquivo("data/Clientes.bin", std::ios::binary | std::ios::trunc);
+    if (!arquivo.is_open()) {
+        std::cerr << "[ERRO] Falha ao salvar clientes.bin!\n";
         return;
     }
 
-    std::string linha;
-    while (std::getline(arquivo, linha))
-    {
-        std::stringstream ss(linha);
-        std::string campo;
+    for (const auto& c : listaDeClientes) {
+        int cod = c.getCodigo();
+        std::string nom = c.getNome();
+        std::string end = c.getEndereco();
+        std::string tel = c.getTelefone();
 
-        int codigo;
-        std::string nome, endereco, telefone;
+        // 1. Grava o Código (Inteiro)
+        arquivo.write(reinterpret_cast<const char*>(&cod), sizeof(cod));
 
-        std::getline(ss, campo, ',');
-        codigo = std::stoi(campo);
+        // Lambda para gravar strings em binário: [Tamanho][Caracteres]
+        auto writeString = [&](const std::string& str) {
+            size_t size = str.size();
+            arquivo.write(reinterpret_cast<const char*>(&size), sizeof(size));
+            arquivo.write(str.c_str(), size);
+        };
 
-        std::getline(ss, nome, ',');
-        std::getline(ss, endereco, ',');
-        std::getline(ss, telefone, ',');
-
-        listaDeClientes.emplace_back(codigo, nome, endereco, telefone);
-
-        if (codigo >= proximoCodigoCliente)
-            proximoCodigoCliente = codigo + 1;
+        writeString(nom);
+        writeString(end);
+        writeString(tel);
     }
-
     arquivo.close();
-    std::cout << "[OK] Clientes carregados. Proximo codigo = " << proximoCodigoCliente << "\n";
 }
 
 // ----------------------------------------------------
-// SALVAR CSV
+// CARREGAR BINÁRIO
 // ----------------------------------------------------
-void salvarClientes()
-{
-    namespace fs = std::filesystem;
-    fs::create_directories("data");
-
-    std::ofstream arquivo("data/clientes.csv");
-    if (!arquivo.is_open())
-    {
-        std::cerr << "[ERRO] Falha ao salvar clientes.csv!\n";
+void carregarClientes() {
+    std::ifstream arquivo("data/Clientes.bin", std::ios::binary);
+    if (!arquivo.is_open()) {
+        std::cout << "[INFO] Nenhum arquivo binario encontrado." << std::endl;
         return;
     }
 
-    for (const auto& c : listaDeClientes)
-    {
-        arquivo << c.getCodigo() << ","
-                << c.getNome() << ","
-                << c.getEndereco() << ","
-                << c.getTelefone() << "\n";
+    listaDeClientes.clear();
+
+    while (true) {
+        int cod;
+        // Tenta ler o código. Se falhar, fim do arquivo.
+        if (!arquivo.read(reinterpret_cast<char*>(&cod), sizeof(cod))) break;
+
+        // Lambda para ler strings: Lê o tamanho e depois redimensiona a string
+        auto readString = [&](std::string& str) {
+            size_t size;
+            arquivo.read(reinterpret_cast<char*>(&size), sizeof(size));
+            str.resize(size);
+            arquivo.read(&str[0], size);
+        };
+
+        std::string nom, end, tel;
+        readString(nom);
+        readString(end);
+        readString(tel);
+
+        listaDeClientes.emplace_back(cod, nom, end, tel);
+
+        if (cod >= proximoCodigoCliente)
+            proximoCodigoCliente = cod + 1;
     }
 
     arquivo.close();
+    std::cout << "[OK] Clientes carregados do binario. Proximo cod: " << proximoCodigoCliente << "\n";
 }
 
 // ----------------------------------------------------
