@@ -14,24 +14,6 @@
 #include "quarto/quarto.cpp"
 #include "estadia/estadia.cpp"
 #include "funcoes/limparTela.cpp"
-// codigo para rodar o arquivo com tudo .cpp g++ main.cpp -o hotel_app
-
-// Exportando as funções que estão nos outros arquivos
-// extern void cliente();
-// extern void listarClientes();
-// extern void buscarCliente();
-
-// extern void quarto();
-// extern void listarQuartos();
-
-// extern void funcionario();
-// extern void listarFuncionario();
-
-// extern void cadastrarEstadia();
-// extern void finalizarEstadia();
-
-// void salvarTudoEmJSON();
-// void carregarTudoDeJSON();
 
 int main()
 {
@@ -46,20 +28,25 @@ int main()
         limparTela();
         // Apresentação do Menu
         std::cout << "\n===============================" << std::endl;
-        std::cout << "         MENU PRINCIPAL        " << std::endl;
+        std::cout << "        MENU PRINCIPAL         " << std::endl;
         std::cout << "===============================" << std::endl;
-        std::cout << "0. Sair" << std::endl;
+        std::cout << "CLIENTES & FUNCIONARIOS" << std::endl;
         std::cout << "1. Cadastrar Novo Cliente" << std::endl;
         std::cout << "2. Listar Clientes" << std::endl;
-        std::cout << "3. Buscar Cliente" << std::endl;
+        std::cout << "3. Buscar Cliente " << std::endl;
         std::cout << "4. Cadastrar Novo Funcionario" << std::endl;
         std::cout << "5. Listar Funcionario" << std::endl;
+        std::cout << "-------------------------------" << std::endl;
+        std::cout << "QUARTOS & ESTADIAS" << std::endl;
         std::cout << "6. Cadastrar Novo Quarto" << std::endl;
         std::cout << "7. Listar Quartos" << std::endl;
-        std::cout << "8. Cadastrar Estadia" << std::endl;
-        std::cout << "9. Finalizar Estadia" << std::endl;
-        std::cout << "10. Listar Estadia " << std::endl;
-        std::cout << "11. Listar Estadia do Cliente" << std::endl;
+        std::cout << "8. Liberar Quarto Manualmente" << std::endl;
+        std::cout << "9. Cadastrar Estadia" << std::endl;
+        std::cout << "10. Finalizar Estadia (Checkout)" << std::endl;
+        std::cout << "11. Listar Todas as Estadias" << std::endl;
+        std::cout << "12. Listar Estadias por Cliente (Busca)" << std::endl;
+        std::cout << "-------------------------------" << std::endl;
+        std::cout << "0. Sair e Salvar Dados" << std::endl;
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Escolha uma opcao: ";
 
@@ -74,7 +61,11 @@ int main()
         switch (opcao)
         {
         case 0: // Saindo
-            std::cout << "\nSaindo do sistema. Ate mais!" << std::endl;
+            std::cout << "\nSalvando dados e saindo do sistema. Ate mais!" << std::endl;
+            salvarClientes();
+            salvarFuncionario();
+            salvarQuarto();
+            salvarEstadias();
             break;
 
         case 1: // Chama a função que coleta dados e cadastra
@@ -85,14 +76,14 @@ int main()
             salvarClientes();
             break;
 
-        case 2: // Lista os clientes cadastrados
+        case 2: 
             listarClientes();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
             std::cin.get();
             break;
 
-        case 3: // Lista os clientes cadastrados
+        case 3: 
             buscarCliente();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
@@ -107,7 +98,7 @@ int main()
             salvarFuncionario();
             break;
 
-        case 5: // Lista os clientes cadastrados
+        case 5: 
             listarFuncionario();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
@@ -122,35 +113,42 @@ int main()
             salvarQuarto();
             break;
 
-        case 7: // Lista os clientes cadastrados
+        case 7: 
             listarQuartos();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
             std::cin.get();
             break;
 
-        case 8: // Lista os clientes cadastrados
+        case 8: 
+            liberarQuartoForce();
+            std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
+            std::cin.ignore(10000, '\n');
+            std::cin.get();
+            break;
+
+        case 9: 
             cadastrarEstadia();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
             std::cin.get();
             break;
 
-        case 9: // Lista os clientes cadastrados
+        case 10: 
             finalizarEstadia();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
             std::cin.get();
             break;
 
-        case 10: // Lista os clientes cadastrados
+        case 11: 
             listarEstadia();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');
             std::cin.get();
             break;
 
-        case 11: // Lista os clientes cadastrados
+        case 12: 
             listarEstadiaC();
             std::cout << "\n--- Pressione ENTER para voltar ao menu ---" << std::endl;
             std::cin.ignore(10000, '\n');

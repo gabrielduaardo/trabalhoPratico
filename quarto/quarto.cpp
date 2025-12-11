@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <filesystem>
-
+#include <limits>
 std::vector<Quarto> listaDeQuarto;
 
 // Construtor
@@ -18,13 +18,12 @@ bool numeroExiste(int num) {
 }
 
 // ----------------------------------------------------
-// CARREGAR BINÁRIO (Atualizado)
+// CARREGAR BINÁRIO 
 // ----------------------------------------------------
 void carregarQuarto() {
     namespace fs = std::filesystem;
     fs::create_directories("data");
 
-    // Abre o arquivo em modo binário
     std::ifstream arquivo("data/Quarto.bin", std::ios::binary);
     
     if (!arquivo.is_open()) {
@@ -34,11 +33,8 @@ void carregarQuarto() {
 
     listaDeQuarto.clear();
     
-    // Objeto temporário para ler os dados
-    // Inicializamos com valores padrão pois o read vai sobrescrever a memória
     Quarto temp(0, 0, 0.0, 0);
 
-    // Lê o arquivo bloco por bloco do tamanho da classe Quarto
     while (arquivo.read(reinterpret_cast<char*>(&temp), sizeof(Quarto))) {
         listaDeQuarto.push_back(temp);
     }
@@ -48,13 +44,12 @@ void carregarQuarto() {
 }
 
 // ----------------------------------------------------
-// SALVAR BINÁRIO (Atualizado)
+// SALVAR BINÁRIO 
 // ----------------------------------------------------
 void salvarQuarto() {
     namespace fs = std::filesystem;
     fs::create_directories("data");
 
-    // Abre o arquivo em modo binário e trunc (sobrescreve)
     std::ofstream arquivo("data/Quarto.bin", std::ios::binary | std::ios::trunc);
     
     if (!arquivo.is_open()) {
@@ -62,7 +57,6 @@ void salvarQuarto() {
         return;
     }
 
-    // Grava cada objeto da lista diretamente da memória
     for (const auto& q : listaDeQuarto) {
         arquivo.write(reinterpret_cast<const char*>(&q), sizeof(Quarto));
     }
@@ -72,42 +66,92 @@ void salvarQuarto() {
 }
 
 // ----------------------------------------------------
-// RESTANTE DAS FUNÇÕES (Mantidas)
+// FUNÇÃO CADASTRAR
 // ----------------------------------------------------
 
 bool cadastrarQuarto(int num, int hospedes, double diaria, int status) {
     Quarto novoQuarto(num, hospedes, diaria, status);
     listaDeQuarto.push_back(novoQuarto);
     
-    salvarQuarto(); // Salva automaticamente após cadastrar
+    salvarQuarto(); 
     std::cout << "\n - Quarto " << num << " cadastrado com sucesso!" << std::endl;
     return true;
 }
+
+// ----------------------------------------------------
+// TELA DE CADASTRO DE QUARTO
+// ----------------------------------------------------
 
 void quarto() {
     int num, hospedes, status;
     double diaria;
 
+    // Limpa o buffer antes de ler o primeiro número, caso a chamada venha do menu.
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
     std::cout << "\n-=-| Cadastro de Quartos |-=-" << std::endl;
-    std::cout << "*Informe o numero do quarto: ";
-    std::cin >> num;
-
-    while (numeroExiste(num)) {
-        std::cout << "*Esse quarto ja existe! Digite outro: ";
-        std::cin >> num;
-    }
-
-    std::cout << "*Hospedes: "; std::cin >> hospedes;
-    std::cout << "*Valor diaria: "; std::cin >> diaria;
 
     do {
+        std::cout << "*Informe o numero do quarto: ";
+  
+        if (!(std::cin >> num) || num <= 0) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "[ERRO] O numero do quarto deve ser um inteiro positivo.\n";
+            num = -1; // Força a repetição do loop
+            continue;
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        
+        while (numeroExiste(num)) {
+            std::cout << "*Esse quarto ja existe! Digite outro: ";
+            std::cin >> num;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        
+    } while (num <= 0);
+
+    do {
+        std::cout << "*Hospedes: "; 
+        if (!(std::cin >> hospedes) || hospedes < 1) {
+            std::cout << "[ERRO] A capacidade de hospedes deve ser 1 ou mais.\n";
+            hospedes = 0; 
+            continue;
+        }
+
+    } while (hospedes < 1);
+
+    do {
+        std::cout << "*Valor diaria (minimo R$ 1.00): "; 
+        if (!(std::cin >> diaria) || diaria < 1.0) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "[ERRO] O valor da diaria deve ser R$ 1.00 ou mais.\n";
+            diaria = 0.0; 
+            continue;
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    } while (diaria < 1.0);
+   
+    do {
         std::cout << "*Status (1-Disponivel, 2-Ocupado): ";
-        std::cin >> status;
+        if (!(std::cin >> status) || (status != 1 && status != 2)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "[ERRO] Status invalido. Escolha 1 ou 2.\n";
+            status = 0;
+            continue;
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     } while (status != 1 && status != 2);
 
     cadastrarQuarto(num, hospedes, diaria, status);
 }
 
+// ----------------------------------------------------
+// LISTAR QUARTOS 
+// ----------------------------------------------------
 void listarQuartos() {
     std::cout << "\n-=-| Quartos Cadastrados |-=-" << std::endl;
     if (listaDeQuarto.empty()) {
@@ -119,7 +163,7 @@ void listarQuartos() {
         std::string statusStr = (q.getStatus() == 1) ? "Disponivel" : "Ocupado";
         std::cout << "Num: " << q.getNumeroDoQuarto() 
                   << " | Hosp: " << q.getQuantidadeDeHospedes()
-                  << " | Diaria: " << q.getValorDaDiaria()
+                  << " | Diaria: R$" << std::fixed << std::setprecision(2) << q.getValorDaDiaria()
                   << " | Status: " << statusStr << std::endl;
     }
 }

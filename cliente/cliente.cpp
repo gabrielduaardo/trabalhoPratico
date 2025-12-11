@@ -6,40 +6,42 @@
 #include <sstream>
 #include <string>
 #include <filesystem>
+#include <algorithm>
 
-// Variável global
 std::vector<Cliente> listaDeClientes;
 
-// Construtor
 Cliente::Cliente(int cod, const std::string &nom, const std::string &end, const std::string &tel)
     : codigo(cod), nome(nom), endereco(end), telefone(tel) {}
 
-int proximoCodigoCliente = 1; // autoincremento real baseado no CSV
+int proximoCodigoCliente = 1;
 
-void salvarClientes() {
+extern bool listarEstadiaC(int cod);
+
+void salvarClientes()
+{
     namespace fs = std::filesystem;
     fs::create_directories("data");
 
-    // Abre em modo binário
     std::ofstream arquivo("data/Clientes.bin", std::ios::binary | std::ios::trunc);
-    if (!arquivo.is_open()) {
+    if (!arquivo.is_open())
+    {
         std::cerr << "[ERRO] Falha ao salvar clientes.bin!\n";
         return;
     }
 
-    for (const auto& c : listaDeClientes) {
+    for (const auto &c : listaDeClientes)
+    {
         int cod = c.getCodigo();
         std::string nom = c.getNome();
         std::string end = c.getEndereco();
         std::string tel = c.getTelefone();
 
-        // 1. Grava o Código (Inteiro)
-        arquivo.write(reinterpret_cast<const char*>(&cod), sizeof(cod));
+        arquivo.write(reinterpret_cast<const char *>(&cod), sizeof(cod));
 
-        // Lambda para gravar strings em binário: [Tamanho][Caracteres]
-        auto writeString = [&](const std::string& str) {
+        auto writeString = [&](const std::string &str)
+        {
             size_t size = str.size();
-            arquivo.write(reinterpret_cast<const char*>(&size), sizeof(size));
+            arquivo.write(reinterpret_cast<const char *>(&size), sizeof(size));
             arquivo.write(str.c_str(), size);
         };
 
@@ -50,29 +52,31 @@ void salvarClientes() {
     arquivo.close();
 }
 
-// ----------------------------------------------------
-// CARREGAR BINÁRIO
-// ----------------------------------------------------
-void carregarClientes() {
+void carregarClientes()
+{
     std::ifstream arquivo("data/Clientes.bin", std::ios::binary);
-    if (!arquivo.is_open()) {
+    if (!arquivo.is_open())
+    {
         std::cout << "[INFO] Nenhum arquivo binario encontrado." << std::endl;
         return;
     }
 
     listaDeClientes.clear();
 
-    while (true) {
+    while (true)
+    {
         int cod;
-        // Tenta ler o código. Se falhar, fim do arquivo.
-        if (!arquivo.read(reinterpret_cast<char*>(&cod), sizeof(cod))) break;
+        if (!arquivo.read(reinterpret_cast<char *>(&cod), sizeof(cod)))
+            break;
 
-        // Lambda para ler strings: Lê o tamanho e depois redimensiona a string
-        auto readString = [&](std::string& str) {
+        auto readString = [&](std::string &str)
+        {
             size_t size;
-            arquivo.read(reinterpret_cast<char*>(&size), sizeof(size));
+            if (!arquivo.read(reinterpret_cast<char *>(&size), sizeof(size)))
+                return;
             str.resize(size);
-            arquivo.read(&str[0], size);
+            if (!arquivo.read(&str[0], size))
+                return;
         };
 
         std::string nom, end, tel;
@@ -90,9 +94,6 @@ void carregarClientes() {
     std::cout << "[OK] Clientes carregados do binario. Proximo cod: " << proximoCodigoCliente << "\n";
 }
 
-// ----------------------------------------------------
-// FUNÇÃO CADASTRAR
-// ----------------------------------------------------
 bool cadastrarCliente(const std::string &nome, const std::string &endereco, const std::string &telefone)
 {
     Cliente novoCliente(proximoCodigoCliente, nome, endereco, telefone);
@@ -104,14 +105,11 @@ bool cadastrarCliente(const std::string &nome, const std::string &endereco, cons
 
     proximoCodigoCliente++;
 
-    salvarClientes(); // salva automaticamente após adicionar
+    salvarClientes();
 
     return true;
 }
 
-// ----------------------------------------------------
-// TELA PARA DIGITAR CLIENTE
-// ----------------------------------------------------
 void cliente()
 {
     std::string nome, endereco, telefone;
@@ -119,22 +117,38 @@ void cliente()
     std::cout << "\n-=-| Cadastro de Cliente |-=-\n";
 
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
+    auto isBlank = [](const std::string &s) {
+        return s.empty() || std::all_of(s.begin(), s.end(), ::isspace);
+    };
 
-    std::cout << "*Informe o nome do cliente: ";
-    std::getline(std::cin, nome);
+    do {
+        std::cout << "*Informe o nome do cliente: ";
+        std::getline(std::cin, nome);
+        if (isBlank(nome)) {
+            std::cout << "[ERRO] Nome nao pode ser vazio.\n";
+        }
+    } while (isBlank(nome));
 
-    std::cout << "*Informe o endereco do cliente: ";
-    std::getline(std::cin, endereco);
+    do {
+        std::cout << "*Informe o endereco do cliente: ";
+        std::getline(std::cin, endereco);
+        if (isBlank(endereco)) {
+            std::cout << "[ERRO] Endereco nao pode ser vazio.\n";
+        }
+    } while (isBlank(endereco));
 
-    std::cout << "*Informe o telefone do cliente: ";
-    std::getline(std::cin, telefone);
+    do {
+        std::cout << "*Informe o telefone do cliente: ";
+        std::getline(std::cin, telefone);
+        if (isBlank(telefone)) {
+            std::cout << "[ERRO] Telefone nao pode ser vazio.\n";
+        }
+    } while (isBlank(telefone));
 
     cadastrarCliente(nome, endereco, telefone);
 }
 
-// ----------------------------------------------------
-// LISTAR CLIENTES
-// ----------------------------------------------------
 void listarClientes()
 {
     std::cout << "\n-=-| Lista de Clientes |-=-\n";
@@ -145,7 +159,7 @@ void listarClientes()
         return;
     }
 
-    for (auto &c : listaDeClientes)
+    for (const auto &c : listaDeClientes)
     {
         std::cout << "Codigo: " << c.getCodigo()
                   << ", Nome: " << c.getNome()
@@ -167,17 +181,30 @@ void buscarCliente()
     }
 
     std::cout << "*Informe o codigo do cliente: ";
-    std::cin >> codigo;
+    
+    if (!(std::cin >> codigo))
+    {
+        std::cout << "[ERRO] Entrada invalida. Tente novamente.\n";
+        return;
+    }
 
     bool encontrado = false;
     for (const auto &cliente : listaDeClientes)
     {
         if (cliente.getCodigo() == codigo)
         {
-            std::cout << "Codigo: " << cliente.getCodigo()
-                      << ", Nome: " << cliente.getNome()
-                      << ", Endereco: " << cliente.getEndereco()
-                      << ", Telefone: " << cliente.getTelefone() << std::endl;
+            std::cout << "\n-=-| DETALHES DO CLIENTE |-=-\n";
+            std::cout << "Codigo: " << cliente.getCodigo() << std::endl;
+            std::cout << "Nome: " << cliente.getNome() << std::endl;
+            std::cout << "Endereco: " << cliente.getEndereco() << std::endl;
+            std::cout << "Telefone: " << cliente.getTelefone() << std::endl;
+            std::cout << "------------------------------------------\n";
+
+            std::cout << "-=-| HISTORICO DE ESTADIAS |-=-\n";
+            if (listarEstadiaC(codigo))
+            {
+                 std::cout << "------------------------------------------\n";
+            }
             encontrado = true;
             break;
         }
@@ -185,6 +212,4 @@ void buscarCliente()
 
     if (!encontrado)
         std::cout << "*Cliente nao encontrado!*";
-
-    std::cout << "\n------------------------------------------" << std::endl;
 }
